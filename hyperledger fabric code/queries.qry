@@ -1,0 +1,53 @@
+/**
+ * New query file
+ */
+query getPrescriptionsByVisit {
+    description: "get prescriptions with visit id"
+    statement:
+        SELECT org.clinicaltrials.prescription
+            WHERE (Visit == _$Visit)
+}
+query getAllergyByVisit {
+    description: "get prescriptions with visit id"
+    statement:
+        SELECT org.clinicaltrials.Allergy
+            WHERE (Visit == _$Visit)
+}
+query getVitalsByVisit {
+    description: "get Vitals with visit id"
+    statement:
+        SELECT org.clinicaltrials.Vitals
+            WHERE (Visit == _$Visit)
+}
+query getOperationByVisit {
+    description: "get Operation records with visit id"
+    statement:
+        SELECT org.clinicaltrials.Operation
+            WHERE (Visit == _$Visit)
+}
+query getVisitByPatient {
+    description: "get Visits records with Patient id"
+    statement:
+        SELECT org.clinicaltrials.Visits
+            WHERE (Patient == _$Patient)
+}
+
+query getAppointmentByPatient {
+    description: "get Visits records with Patient id"
+    statement:
+        SELECT org.clinicaltrials.Appointment
+            WHERE (Patient == _$Patient)
+}
+query getImmunizationByVisit {
+    description: "get prescriptions with visit id"
+    statement:
+        SELECT org.clinicaltrials.Immunizations
+            WHERE (Visit == _$Visit)
+}
+
+query getProblemByVisit {
+    description: "get prescriptions with visit id"
+    statement:
+        SELECT org.clinicaltrials.Problem
+            WHERE (Visit == _$Visit)
+} 

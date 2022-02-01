@@ -1,0 +1,835 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicaAble law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+namespace org.clinicaltrials
+// --------------------------------------------assets-----------------------------------------------------
+asset drug identified by drugID{
+	o String drugID
+    o String type
+    o String NDC
+    o String product_name
+    o String stength
+    o String dosage
+    o String adverse_effects
+    o String precautions_or_warnings
+    o String container_size
+    o String lot_no
+    --> participants from
+    --> participants to
+    --> pharmaceutical madeby
+}
+asset invoice identified by Invoice_Number{
+	o String Invoice_Number
+    o String Invoice_Title
+    --> Patient Patient
+	o DateTime Creation_Date
+	o DateTime Due_Date
+	o Integer Vat_Percentage
+	o Integer Discount_Amount
+	o pay_status Payment_Status
+
+}
+enum pay_status{
+  o PAID
+  o UNPAID
+}
+asset prescription identified by pid{
+	o String pid
+  --> Doctor Doctor
+  --> Patient Patient
+  o String  Medication
+  o String Instructions
+
+  o String Refills_Remaining
+  o DateTime Last_Filled_On
+  o DateTime Initially_Ordered_On
+  o p_details[] p_details optional
+ --> Visits Visit
+  --> PRO pro optional
+  --> participants[] allowed optional
+}
+concept p_details{
+  o String Quantity
+  o String Days
+  o String Supply
+  -->pharmaceutical Pharmacy optional
+
+}
+concept drugs{
+
+}
+asset Lab_result identified by reportID{
+  o String reportID
+  o String Lab_Test
+  o String Lab_Type
+  --> participants Ordering_Provider
+  o String Site
+  o DateTime Collected
+  o DateTime Completed
+  --> Lab Performer
+  --> Patient Patient optional
+  o test[] test
+  o String Result
+  --> participants[] allowed optional
+
+}
+asset Operation identified by OperationID{
+
+	o String OperationID
+    o String Name_Of_Operation
+    o String Description
+    o String Anesthesia
+    o String PreOperative_Diagnosis
+    o String PostOperative_Diagnosis 
+    o DateTime Operation_Started 
+    o DateTime Operation_Ended 
+    --> Patient Patient
+    --> Doctor Doctor
+    --> Visits Visit
+
+
+
+
+}
+asset Visits identified by VisitID{
+	o String VisitID
+    --> Patient Patient
+    --> Doctor Doctor
+    --> invoice Charges optional
+    o String Description
+    o DateTime Visit_Date 
+    --> Appointment Appointment
+}
+asset Admit identified by AdmitID{
+	o String AdmitID
+    --> Patient Patient
+    --> invoice Charges optional
+    o String Description
+    o String RoomNo
+    o String BedType
+    o DateTime Admit_Date
+    o status Status
+    o DateTime Discharge_Date optional
+}
+asset Immunizations identified by reportID{
+	o String reportID
+    o String Immunization_Name 
+    o DateTime Date_Recieved
+    o String Location
+    o String Reaction
+    o String Comments optional
+    --> Patient Patient
+    --> Visits Visit
+   --> participants[] allowed optional    
+}
+asset Radiology_reports identified by reportID{	
+  	o String reportID
+	o String Procedure_Name
+	o DateTime Performed
+	o String Ordering_Location
+	o String Requesting_Provider
+	o String Reason_for_Study
+	o String Performing_Location
+	o String Clinical_History
+    --> Patient Patient
+	--> Lab Radiologist  
+    --> participants[] allowed optional
+}
+concept test{
+  o String  _Name
+  o String Result
+  o String units 
+  o String Reference_range
+  o status Status
+  o String Performing 
+}
+enum status{
+  o ACTIVE
+  o COMPLETED
+  o REJECTED
+  o EXPIRED
+  o PENDING
+}
+concept individualScore{
+	--> Doctor Doctor
+    o String HealthScore
+}
+asset PRO identified by proID{
+	o String proID
+    o String[] Questions
+    o String[] Answers
+    o individualScore[] DoctorScores
+    --> Doctor CreatedBy
+    --> Patient Patient
+    o String totalHealthScore
+    
+}
+asset Problem identified by reportID{
+	o String reportID
+    --> Patient Patient
+    o String Problem
+    o String Provider
+    o String Location
+    o DateTime Date_Recieved
+    o String Comments optional
+    --> Visits Visit
+    --> participants[] allowed optional
+
+     
+}
+
+asset Allergy identified by reportID{
+  o String reportID
+  o String Allergy_Name
+  o String Allergy_Type
+  o DateTime Date_Entered
+  o String location
+  o String Reaction
+  o String Drug_Class
+  o String ObservedOrHistorical
+  o String Comments
+  o status Status
+  --> Visits Visit
+  --> Patient Patient
+  --> participants[] allowed optional
+
+}
+asset primary_care_physical_exam identified by reportID{
+  o String reportID
+  o String facility
+  o String issues
+  o String type
+  o part[] Eyes optional
+  o part[] Nose optional
+  o part[] Ears optional
+  o part[] Mouth optional
+  o part[] Throat optional
+  o part[] Neck optional
+  o part[] Respiratory optional
+  o part[] Cardiovascular optional
+  o part[] Chest optional
+  o part[] Gastrointestinal optional
+  o part[] Male_genitourinary optional
+  o part[] Female_genitourinary optional
+  o part[] Lymphatic optional
+  o part[] Skin optional
+  o part[] Musculoskeleton optional
+  o part[] Neurologic optional
+  o part[] Psychiatric optional
+  o String other_notes
+  
+
+  o DateTime date
+  --> Patient Patient
+  --> Doctor[] Doctor optional
+}
+concept part {
+  o String Value 
+  o DateTime Last_Checked
+}
+asset Vitals identified by VitalID{
+  o String VitalID
+  o String Weight
+  o String Length
+  o String BP_Systolic
+  o String BP_Diastolic
+  o String Pulse
+  o String Respiration
+  o String Temperature 
+  o String Oxygen_Saturation 
+  o String Head_Circumference
+  o String Waist_Circumference
+  o String BMI
+  o String other_notes optional
+  --> Patient Patient
+   --> Visits Visit
+  --> participants[] allowed optional
+}
+asset Appointment identified by AppointmentID{
+  o String AppointmentID
+  --> Patient Patient
+  o DateTime AppointmentTime
+  o status Status
+  --> Doctor Doctor
+  --> Visits visit optional
+   o String comments optional
+}
+asset CRFDocument identified by docID{
+	o String docID
+    o DateTime time
+    --> Patient Patient
+    o Baseline_Details[] baseline_details optional
+    o HAEMATOLOGY[] haematology optional
+    o PHYSICAL_EXAMINATION[] physical_examination optional
+    o SYMPTOM_CHECK[] symptom_check optional
+    o PARASITEMIA[] parasitemia optional
+    o MOLECULAR_GENOTYPE[] molecular_genotype optional
+    o CONCOMITANT_MEDICATIONS[] concomitant_medications optional
+    o ADVERSE_EVENTS[] adverse_events optional
+    o FINAL_STUDY_OUTCOME[] final_study_outcome optional
+    --> Doctor[] signed optional
+    --> participants[] allowed optional
+}
+concept HAEMATOLOGY{
+	o String[] HAEMATOLOGY
+}
+concept PHYSICAL_EXAMINATION{
+  	o String[] PHYSICAL_EXAMINATION
+
+}
+concept SYMPTOM_CHECK{
+	o String[] SYMPTOM_CHECK 
+}
+concept PARASITEMIA{
+  	o String[] PARASITEMIA 
+}
+concept MOLECULAR_GENOTYPE{
+  	o String[] PHARMACOKINETIC_PROFILE
+}
+concept STUDY_DRUG_ADMINISTRATION{
+	o String[] STUDY_DRUG_ADMINSTRATION 
+}
+concept CONCOMITANT_MEDICATIONS{
+  o String[] CONCOMITANT_MEDICATIONS 
+
+}
+concept ADVERSE_EVENTS{
+	o String[] ADVERSE_EVENTS 
+}
+concept FINAL_STUDY_OUTCOME{
+	o String[] FINAL_STUDY_OUTCOME
+}
+concept Baseline_Details{
+	o String[] participantInfo
+    o String[] BASELINE_SYMPTOMS
+    o String[] MEDICATION_HISTORY
+    o String[] SIGNIFICANT_MEDICAL_HISTORY
+    o String[] BASELINE_PHYSICAL_EXAMINATION 
+}
+
+//--------------------------------------------------participants------------------------------------------------
+abstract participant participants identified by participantKey{
+	o String participantKey
+    
+}
+participant Doctor extends participants{
+  o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+  o String Department
+  o String Experience
+  o String Qualification
+  o String Clinic
+
+  o String Medical_Registration_ID
+  o String Speciality
+  o String Certificates
+	
+}
+
+participant Hospital extends participants{
+    o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+   
+   
+}
+participant Nurse extends participants{
+    o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+   
+  --> Hospital Hospital
+  
+}
+participant receptionist extends participants{
+   o String Name
+  o String Email_ID
+  o Integer Mobile_No
+  o String Address
+  o String Qualification
+  o String Medical_Registration_ID
+}
+participant accountant extends participants{
+}
+participant clinicalResearchAssociate extends participants{
+    
+}
+participant Lab extends participants{
+   o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+  o String Department
+  --> Hospital Hospital
+  
+}
+participant Patient extends participants{
+ o String Name
+ o String Address //(all geographic subdivisions smaller than street address, and PIN code)
+ o DateTime DOB
+ o DateTime DOD optional 
+ o Integer Mobile_No
+ o Integer Telephone_No optional
+ o Integer Fax_No optional
+ o String Email_ID
+ o String Bank_Account
+ o String Credit_Card_Number optional
+ o String Medical_Record_Number
+ o String Health_Plan_Beneficiary_Number
+ o String Certificate_Or_License_Number
+//• Any vehicle or other any other device identifier or serial numbers
+o String PAN_Number optional
+o String Passport_Number optional
+o String AADHAAR_Card optional
+o String Voter_ID_Card  optional
+--> participants[] allowed optional
+}
+participant pharmaceutical extends participants{
+  o String Name
+  o String Location
+  o String Pharmacist_Name
+  o String Pharmacist_License
+  o String Drug_Information
+  o String Supplier_Information
+  o String Manufacturer_Information
+    
+}
+
+
+//------------------------------------------------------transactions--------------------------------------------------------
+transaction createCRF{
+  	o String docID
+    
+    --> Patient Patient
+    o Baseline_Details[] baseline_details optional
+    o HAEMATOLOGY[] haematology optional
+    o PHYSICAL_EXAMINATION[] physical_examination optional
+    o SYMPTOM_CHECK[] symptom_check optional
+    o PARASITEMIA[] parasitemia optional
+    o MOLECULAR_GENOTYPE[] molecular_genotype optional
+    o CONCOMITANT_MEDICATIONS[] concomitant_medications optional
+    o ADVERSE_EVENTS[] adverse_events optional
+    o FINAL_STUDY_OUTCOME[] final_study_outcome optional
+    --> Doctor signed
+	--> participants[] allowed optional
+}
+transaction signCRF{
+	o String docID
+    --> participants participant
+}
+transaction createDrug{
+	o String drugID
+    o String type
+    o String NDC
+    o String product_name
+    o String stength
+    o String dosage
+    o String adverse_effects
+    o String precautions_or_warnings
+    o String container_size
+    o String lot_no
+
+}
+transaction createPrescription{
+    
+	o String pid
+  --> Doctor Doctor
+  --> Patient Patient
+  o String  Medication
+  o String Instructions
+
+  o String Refills_Remaining
+  o DateTime Last_Filled_On
+  o DateTime Initially_Ordered_On
+  o p_details[] p_details optional
+  --> Visits Visit
+  --> PRO pro optional
+}
+transaction createProblem{
+  o String reportID
+    --> Patient Patient
+    --> Visits Visit
+    o String Problem
+    o String Provider
+    o String Location
+    o DateTime Date_Recieved
+    o String Comments optional
+
+}
+transaction createAllergy{
+ o String reportID
+  o String Allergy_Name
+  o String Allergy_Type
+ 
+  o String location
+  o String Reaction
+  o String Drug_Class
+  o String ObservedOrHistorical
+  o String Comments
+  --> Visits Visit
+  --> Patient Patient
+}
+
+transaction createImmunizations{
+
+		o String reportID
+    o String Immunization_Name 
+    o DateTime Date_Recieved
+    o String Location
+    o String Reaction
+    o String Comments optional
+    --> Patient Patient
+    --> Visits Visit
+}
+transaction createRadiologyReports{
+  o String reportID
+	o String Procedure_Name
+	o DateTime Performed
+	o String Ordering_Location
+	o String Requesting_Provider
+	o String Reason_for_Study
+	o String Performing_Location
+	o String Clinical_History
+    --> Patient Patient
+
+}
+transaction createOperation{
+  	o String OperationID
+    o String Name_Of_Operation
+    o String Description
+    o String Anesthesia
+    o String PreOperative_Diagnosis
+    o String PostOperative_Diagnosis 
+    o DateTime Operation_Started 
+    o DateTime Operation_Ended 
+    --> Patient Patient
+    --> Doctor Doctor
+    --> Visits Visit
+
+	
+}
+transaction createPhysicalExamReport{
+	  o String reportID
+  o String facility
+  o String issues
+  o String type
+  o part[] Eyes optional
+  o part[] Nose optional
+  o part[] Ears optional
+  o part[] Mouth optional
+  o part[] Throat optional
+  o part[] Neck optional
+  o part[] Respiratory optional
+  o part[] Cardiovascular optional
+  o part[] Chest optional
+  o part[] Gastrointestinal optional
+  o part[] Male_genitourinary optional
+  o part[] Female_genitourinary optional
+  o part[] Lymphatic optional
+  o part[] Skin optional
+  o part[] Musculoskeleton optional
+  o part[] Neurologic optional
+  o part[] Psychiatric optional
+  --> Patient Patient
+  o String other_notes
+}
+transaction createVitals{
+   o String VitalID
+  o String Weight
+  o String Length
+  o String BP_Systolic
+  o String BP_Diastolic
+  o String Pulse
+  o String Respiration
+  o String Temperature  
+  o String Oxygen_Saturation 
+  o String Head_Circumference
+  o String Waist_Circumference
+  o String BMI
+  o String other_notes optional
+  --> Patient Patient
+  --> Visits Visit
+}
+transaction createVisits{
+  o String VisitID
+    --> Patient Patient
+    --> Doctor Doctor
+    o DateTime Visit_Date
+    o String Description
+    --> Appointment Appointment
+}
+transaction createAdmit
+{
+  o String AdmitID
+    --> Patient Patient
+    o String RoomNo
+    o String BedType
+    o String Description
+    o DateTime Admit_Date
+    o DateTime Discharge_Date optional
+}
+transaction grantAccess{
+  o String pid
+  --> participants participant
+}
+transaction revokeAccess{
+  o String pid
+  --> participants participant
+}
+transaction grantAccessProblem{
+  o String reportID
+  --> participants participant
+}
+transaction revokeAccessProblem{
+  o String reportID
+  --> participants participant
+}
+
+transaction grantAccessVitals{
+  o String VitalID
+  --> participants participant
+}
+transaction revokeAccessVitals{
+  o String VitalID
+  --> participants participant
+}
+transaction grantAccessAllergy{
+  o String reportID
+  --> participants participant
+}
+transaction revokeAccessAllergy{
+  o String reportID
+  --> participants participant
+}
+transaction grantAccessLabResult{
+  o String reportID
+  --> participants participant
+}
+transaction revokeAccessLabResult{
+  o String reportID
+  --> participants participant
+}
+transaction grantAccessImmunization{
+  o String reportID
+  --> participants participant
+}
+transaction revokeAccessImmunization{
+  o String reportID
+  --> participants participant
+}
+transaction grantAccessRadiologyReports{
+  o String reportID
+  --> participants participant
+}
+transaction revokeAccessRadiologyReports{
+  o String reportID
+  --> participants participant
+}
+transaction grantAccessCRF{
+  o String docID
+  --> participants participant
+}
+transaction revokeAccessCRF{
+  o String docID
+  --> participants participant
+}
+transaction setAppointmentStatus{
+	o String AppointmentID
+    o status Status
+    o String comments optional
+}
+transaction createAppointment{
+	o String AppointmentID
+    o DateTime AppointmentTime
+    --> Doctor Doctor
+}
+
+transaction createQuestionsPRO{
+	o String proID
+    o String[] Questions
+    -->participants CreatedBy
+}
+transaction answersPRO{
+	o String proID
+    o String[] answers
+}
+transaction giveScorePRO{
+	o String proID
+    o String HealthScore
+}
+transaction transferDrug{
+	o String drugID
+    --> participants to 
+    
+}
+transaction dischargePatient{
+	o String AdmitID
+  
+}
+transaction createDoctor{
+  o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+  o String Department
+  o String Experience
+  o String Qualification
+  o String Clinic
+  o String Medical_Registration_ID
+  o String Speciality
+  o String Certificates
+  o String participantKey
+	
+}
+transaction createNurse{
+  o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+  o String participantKey
+  --> Hospital Hospital
+}
+transaction createLab{
+  o String Name
+  o String Email_ID
+  o String Address
+  o String Mobile_No
+  o String participantKey
+  o String Department
+  --> Hospital Hospital
+}
+event onCreateAllergy{
+  o String reportID
+  o String Allergy_Name
+  o String Allergy_Type
+  o String location
+  o String Reaction
+  o String Drug_Class
+  o String ObservedOrHistorical
+  o String Comments
+  o DateTime Date_Entered
+  o status Status
+  --> Visits Visit
+  --> Patient Patient
+}
+event onCreateAppointmentEvent{
+ o String AppointmentID
+  --> Patient Patient
+  o DateTime AppointmentTime
+  o status Status
+  --> Doctor Doctor
+  
+}
+event onSetAppointmentStatus{
+ o String AppointmentID
+  o status Status
+  
+}
+
+event onCreateVisitEvent{
+    o String VisitID
+    --> Patient Patient
+    --> Doctor Doctor
+    o String Description
+    o DateTime Visit_Date 
+    --> Appointment Appointment
+  
+}
+event onCreateAdmitEvent{
+    	o String AdmitID
+    --> Patient Patient
+    o String Description
+    o String RoomNo
+    o String BedType
+    o DateTime Admit_Date
+    o status Status
+  
+}
+
+event onCreateOperationEvent{
+    o String OperationID
+    o String Name_Of_Operation
+    o String Description
+    o String Anesthesia
+    o String PreOperative_Diagnosis
+    o String PostOperative_Diagnosis 
+    o DateTime Operation_Started 
+    o DateTime Operation_Ended 
+    --> Patient Patient
+    --> Doctor Doctor
+    --> Visits Visit
+
+
+  
+}
+event onCreatePrescriptionEvent{
+   	o String pid
+  --> Doctor Doctor
+  --> Patient Patient
+  o String  Medication
+  o String Instructions
+
+  o String Refills_Remaining
+  o DateTime Last_Filled_On
+  o DateTime Initially_Ordered_On
+ --> Visits Visit
+}
+event onDischargePatientEvent{
+    o String AdmitID
+    o status Status
+    o DateTime Discharge_Date
+  
+}
+event onCreateVitalsReport{
+ o String VitalID
+  o String Weight
+  o String Length
+  o String BP_Systolic
+  o String BP_Diastolic
+  o String Pulse
+  o String Respiration
+  o String Temperature
+  o String Oxygen_Saturation 
+  o String Head_Circumference
+  o String Waist_Circumference
+  o String BMI
+  o String other_notes optional
+  --> Patient Patient
+  --> Visits Visit
+}
+event onCreateImmunizationsReport{
+ 	o String reportID
+    o String Immunization_Name 
+    o DateTime Date_Recieved
+    o String Location
+    o String Reaction
+    o String Comments optional
+    --> Patient Patient
+    --> Visits Visit
+}
+event onCreateProblemEvent{
+ 		o String reportID
+    --> Patient Patient
+    o String Problem
+    o String Provider
+    o String Location
+    o DateTime Date_Recieved
+    o String Comments optional
+    --> Visits Visit
+}

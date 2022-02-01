@@ -1,0 +1,786 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+//-------------------------------------------admin rules-----------------------------------------------
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
+// -----------------------------------------common rules-----------------------------------------------------
+rule readPatientsPrescription{
+	description: "Grant read access for prescriptions to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.prescription"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule readParticipantsProblem{
+	description: "Grant read access for problems to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.Problem"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule readParticipantsAllergy{
+	description: "Grant read access for Allergy to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.Allergy"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule readParticipantsVitals{
+	description: "Grant read access for Vitals to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.Vitals"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule readParticipantsLabResults{
+	description: "Grant read access for Lab results to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.Lab_result"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule readParticipantsRadiologyReport{
+	description: "Grant read access for Radiology reports to participants who are allowed by patients"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.Radiology_reports"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+
+rule participantsSeesOwnHistoryOnly {
+  description: "See history of their own transactions only"
+  participant(t): "org.clinicaltrials.participants"
+  operation: READ
+  resource(v): "org.hyperledger.composer.system.HistorianRecord"
+  condition: (v.participantInvoking.getIdentifier() != t.getIdentifier())
+  action: DENY
+}
+rule participantaccessstoSystem {
+    description: "Grant participants full access to system resources"
+    participant: "org.clinicaltrials.participants"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.*"
+    action: ALLOW
+}
+rule readPatientsPrescriptionCRF{
+	description: "Grant business network administrators full access to system resources"
+    participant(p): "org.clinicaltrials.participants"
+    operation: READ
+    resource(r): "org.clinicaltrials.CRFDocument"
+ 	condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+    action: ALLOW
+}
+rule  transferDrugRule{
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.clinicaltrials.participants"
+    operation: CREATE,READ
+    resource: "org.clinicaltrials.transferDrug"
+    action: ALLOW
+}
+// -------------------------------------------Hospital rules-------------------------------------------
+
+rule HospitalpatientcreateAccess {
+    description: "Grant patient read access to prescription"
+    participant: "org.clinicaltrials.Hospital"
+    operation: CREATE
+    resource: "org.clinicaltrials.Patient"
+  
+    action: ALLOW
+}
+rule HospitalDoctorAccess {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Hospital"
+    operation: READ
+    resource(r): "org.clinicaltrials.Doctor"
+   condition:(p.getIdentifier() == r.Hospital.getIdentifier())
+    action: ALLOW
+}
+rule HospitalDoctorCreateAccess {
+    description: "Grant patient read access to prescription"
+    participant: "org.clinicaltrials.Hospital"
+    operation: CREATE
+    resource: "org.clinicaltrials.Doctor"
+	
+    action: ALLOW
+}
+rule HospitalDoctorCreateAccesstx {
+    description: "Grant patient read access to prescription"
+    participant: "org.clinicaltrials.Hospital"
+    operation: CREATE
+    resource: "org.clinicaltrials.createDoctor"
+	
+    action: ALLOW
+}
+rule HospitalLabAccess {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Hospital"
+    operation: READ
+    resource(r): "org.clinicaltrials.Lab"
+   condition:(p.getIdentifier() == r.Hospital.getIdentifier())
+    action: ALLOW
+}
+rule HospitalLabCreateAccess {
+    description: "Grant patient read access to prescription"
+    participant: "org.clinicaltrials.Hospital"
+    operation: CREATE
+    resource: "org.clinicaltrials.Lab"
+	
+    action: ALLOW
+}
+rule HospitalLabCreateAccesstx {
+    description: "Grant patient read access to prescription"
+    participant: "org.clinicaltrials.Hospital"
+    operation: CREATE
+    resource: "org.clinicaltrials.createLab"
+	
+    action: ALLOW
+}
+
+
+// -------------------------------------------Patient rules-------------------------------------------
+rule participantaccessstohis {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Patient"
+    operation: READ
+    resource(r): "org.clinicaltrials.prescription"
+  	condition:(p.getIdentifier()==r.Patient.getIdentifier())
+    action: ALLOW
+}
+rule participantaccessstohisVisit {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Patient"
+    operation: READ
+    resource(r): "org.clinicaltrials.Visits"
+  	condition:(p.getIdentifier()==r.Patient.getIdentifier())
+    action: ALLOW
+}
+rule participantaccessstohisAdmit {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Patient"
+    operation: READ
+    resource(r): "org.clinicaltrials.Admit"
+  	condition:(p.getIdentifier()==r.Patient.getIdentifier())
+    action: ALLOW
+}
+rule participantaccessstohisAppointment {
+    description: "Grant patient read access to prescription"
+    participant(p): "org.clinicaltrials.Patient"
+    operation: READ
+    resource(r): "org.clinicaltrials.Appointment"
+  	condition:(p.getIdentifier()==r.Patient.getIdentifier())
+    action: ALLOW
+}
+rule participantaccessstohiscrf {
+    description: "participant accesss to his crf"
+    participant(p): "org.clinicaltrials.Patient"
+    operation: READ
+    resource(r): "org.clinicaltrials.CRFDocument"
+  	condition:(p.getIdentifier()==r.Patient.getIdentifier())
+    action: ALLOW
+}
+
+rule Patientcanseetheirowndata{
+  description:"all patient can see their own data"
+  participant(p):"org.clinicaltrials.Patient"
+  operation:READ,UPDATE
+  resource(r):"org.clinicaltrials.Patient"
+  condition:(p.getIdentifier()==r.participantKey)
+  action: ALLOW
+}
+rule Patientaccesstoparticipants{
+  description:"all participants can see their patient  data for whom he allows"
+  participant(p):"org.clinicaltrials.participants"
+  operation:READ
+  resource(r):"org.clinicaltrials.Patient"
+  //condition: (
+    // r.allowed.some(function (user) {
+      //  return user.getIdentifer() === getCurrentParticipant().getIdentifier();  
+        //} )
+   //)
+  condition: (
+     r.allowed.some(function (user) {
+        return user.getIdentifier() === p.getIdentifier();  
+        } )
+   )
+
+  action: ALLOW
+}
+
+rule giveaccessprescriptiontx{
+  description:"give create access to tx grant access of prescription for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.prescription"
+  transaction:"org.clinicaltrials.grantAccess"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessprescriptiontx{
+  description:"give create access to tx revoke access of prescription for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.prescription"
+  transaction:"org.clinicaltrials.revokeAccess"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessproblemtx{
+  description:"give create access to tx grant access of problem for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Problem"
+  transaction:"org.clinicaltrials.grantAccessProblem"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessproblemtx{
+  description:"give create access to tx revoke access of problem for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Problem"
+  transaction:"org.clinicaltrials.revokeAccessProblem"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessvitaltx{
+  description:"give create access to tx grant access of Vitals for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Vitals"
+  transaction:"org.clinicaltrials.grantAccessVitals"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessvitaltx{
+  description:"give create access to tx revoke access of Vitals for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Vitals"
+  transaction:"org.clinicaltrials.revokeAccessVitals"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessallergytx{
+  description:"give create access to tx grant access of allergy for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Allergy"
+  transaction:"org.clinicaltrials.grantAccessAllergy"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessallergytx{
+  description:"give create access to tx revoke access of allergy for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Allergy"
+  transaction:"org.clinicaltrials.revokeAccessAllergy"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessimmunizationstx{
+  description:"give create access to tx grant access of immunizations for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Immunizations"
+  transaction:"org.clinicaltrials.grantAccessImmunization"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessimmunizationstx{
+  description:"give create access to tx revoke access of immunizations for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Immunizations"
+  transaction:"org.clinicaltrials.revokeAccessImmunization"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessLabresulttx{
+  description:"give create access to tx grant access of Lab result for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Lab_result"
+  transaction:"org.clinicaltrials.grantAccessLabResult"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessLabresulttx{
+  description:"give create access to tx revoke access of Lab result for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Lab_result"
+  transaction:"org.clinicaltrials.revokeAccessLabResult"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule grantaccessradiologyreportsrtx{
+  description:"give create access to tx grant access of radiology results for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Radiology_reports"
+  transaction:"org.clinicaltrials.grantAccessRadiologyReports"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule revokeaccessradiologyreportstx{
+  description:"give create access to tx revoke access of radiology reports for Patients"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: UPDATE
+  resource(r):"org.clinicaltrials.Radiology_reports"
+  transaction:"org.clinicaltrials.revokeAccessRadiologyReports"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule Patientcreategrantaccess{
+  description:"give create access to tx grant access of prescription for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccess"
+
+  action: ALLOW
+}
+rule Patientrevokeaccess{
+  description:"give create access to tx revoke access of prescription for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccess"
+  action: ALLOW
+}
+rule Patientcreategrantaccessproblem{
+  description:"give create access to tx grant access of problem for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessProblem"
+
+  action: ALLOW
+}
+rule Patientrevokeaccessproblem{
+  description:"give create access to tx revoke access of problems for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessProblem"
+  action: ALLOW
+}
+rule PatientcreategrantaccessAllergy{
+  description:"give create access to tx grant access of allergy for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessAllergy"
+
+  action: ALLOW
+}
+rule PatientrevokeaccessAllergy{
+  description:"give create access to tx revoke access of allergy for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessAllergy"
+  action: ALLOW
+}
+rule PatientcreategrantaccessLabResults{
+  description:"give create access to tx grant access of Lab results for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessLabResult"
+
+  action: ALLOW
+}
+rule PatientrevokeaccessLabResults{
+  description:"give create access to tx revoke access of Lab results for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessLabResult"
+  action: ALLOW
+}
+rule PatientcreategrantaccessRadiologyReports{
+  description:"give create access to tx grant access of radiology reports for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessRadiologyReports"
+
+  action: ALLOW
+}
+rule PatientrevokeaccessRadiologyReports{
+  description:"give create access to tx revoke access of radiology reports for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessRadiologyReports"
+  action: ALLOW
+}
+rule PatientcreategrantaccessImmunizations{
+  description:"give create access to tx grant access of immunizations for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessImmunization"
+
+  action: ALLOW
+}
+rule PatientrevokeaccessImmunizations{
+  description:"give create access to tx revoke access of Immunizations for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessImmunization"
+  action: ALLOW
+}
+rule PatientcreategrantaccessVitals{
+  description:"give create access to tx grant access of Vitals for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.grantAccessVitals"
+
+  action: ALLOW
+}
+rule PatientrevokeaccessVitals{
+  description:"give create access to tx revoke access of Vitals for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.revokeAccessVitals"
+  action: ALLOW
+}
+rule PatientsreadsDoctor{
+  description:"Read access to patient for Doctors data"
+  participant:"org.clinicaltrials.Patient"
+  operation: READ
+  resource:"org.clinicaltrials.Doctor"
+  action: ALLOW
+}
+rule PatientsreadsHospital{
+  description:"Read access to patient for Hospital data"
+  participant:"org.clinicaltrials.Patient"
+  operation: READ
+  resource:"org.clinicaltrials.Hospital"
+  action: ALLOW
+}
+rule PatientsreadsLab{
+  description:"Read access to patient for Doctors data"
+  participant:"org.clinicaltrials.Patient"
+  operation: READ
+  resource:"org.clinicaltrials.Lab"
+  action: ALLOW
+}
+rule giveaccessproblemtx{
+  description:"Read access for patient's own problem report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Problem"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessImmunizationstx{
+  description:"Read access for patient's own immunization report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Immunizations"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessAppointmentstx{
+  description:"Read access for patient's own immunization report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Appointment"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule givecreateAccesstoAppointment{
+  description:"give create access to tx revoke access of radiology reports for Patients"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.Appointment"
+  transaction:"org.clinicaltrials.createAppointment"
+  action: ALLOW
+ 
+}
+rule givecreateaccessAppointmentstx{
+  description:"Read access for patient's own immunization report"
+  participant:"org.clinicaltrials.Patient"
+  operation: CREATE
+  resource:"org.clinicaltrials.createAppointment"
+  action: ALLOW
+ 
+}
+
+rule giveaccessAllergytx{
+  description:"Read access for patient's own allergy report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Allergy"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessPrescriptiontx{
+  description:"Read access for patient's own allergy report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.prescription"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessVitalstx{
+  description:"Read access for patient's own Vitals report"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Vitals"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessLabtx{
+  description:"Read access for patient's own Lab results"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Lab_result"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+rule giveaccessoperationstx{
+  description:"Read access for patient's own Lab results"
+  participant(p):"org.clinicaltrials.Patient"
+  operation: READ
+  resource(r):"org.clinicaltrials.Operation"
+  condition:(p.getIdentifier()==r.Patient.getIdentifier())
+  action: ALLOW
+ 
+}
+// -------------------------------------------pharmaceuticals rules------------------------------------------------
+rule pharmacistcanseetheirowndata{
+  description:"all pharmaceutical  can read and update their own data"
+  participant(p):"org.clinicaltrials.pharmaceutical"
+  operation:READ,UPDATE
+  resource(r):"org.clinicaltrials.pharmaceutical"
+  condition:(p.getIdentifier()==r.participantKey)
+  action: ALLOW
+}
+// ------------------------------------------------Lab rules----------------------------------------------------------
+rule Labcanseetheirowndata{
+  description:"all Lab  can read and update their own data"
+  participant(p):"org.clinicaltrials.Lab"
+  operation:READ,UPDATE
+  resource(r):"org.clinicaltrials.Lab"
+  condition:(p.getIdentifier()==r.participantKey)
+  action: ALLOW
+}
+//-----------------------------------------------Doctor rules--------------------------------------------------------
+rule Doctorcanseetheirowndata{
+  description:"all Doctor  can read and update their own data"
+  participant(p):"org.clinicaltrials.Doctor"
+  operation:READ,UPDATE
+  resource(r):"org.clinicaltrials.Doctor"
+  condition:(p.getIdentifier()==r.participantKey)
+  action: ALLOW
+}
+
+rule Doctorcreateprescriptions{
+  description:"create access to Doctor for prescriptions using createprescription tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.prescription"
+  transaction:"org.clinicaltrials.createPrescription"
+  action: ALLOW
+}
+rule Doctorcreateprescriptiontx{
+  description:"create access to Doctor for problem using createproblem tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createPrescription"
+  action: ALLOW
+}
+rule Doctorcreateproblem{
+  description:"create access to Doctor for problem using createproblem tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Problem"
+  action: ALLOW
+}
+rule Doctorcreateproblemtx{
+  description:"create access to Doctor for problem using createproblem tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createProblem"
+  action: ALLOW
+}
+rule DoctorcreateAllergy{
+  description:"create access to Doctor for allergy using createAllergy tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Allergy"
+  action: ALLOW
+}
+rule DoctorcreateAllergytx{
+  description:"create access to Doctor for allergy using createAllergy tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createAllergy"
+  action: ALLOW
+}
+rule DoctorcreateVitals{
+  description:"create access to Doctor for Vitals using createVitals tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Vitals"
+  action: ALLOW
+}
+rule DoctorcreateVitalstx{
+  description:"create access to Doctor for Vitals using createVitals tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createVitals"
+  action: ALLOW
+}
+rule DoctorcreateLabResult{
+  description:"create access to Doctor for Labresult using createLabResult tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Lab_result"
+  action: ALLOW
+}
+rule DoctorcreateImmunizations{
+  description:"create access to Doctor for Labresult using createLabResult tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Immunizations"
+  action: ALLOW
+}
+rule DoctorcreateImmunizationstx{
+  description:"create access to Doctor for prescriptions using create Immunizations tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createImmunizations"
+  action: ALLOW
+}
+rule Doctorcreateradiologyreports{
+  description:"create access to Doctor for radiology reports using createRadiologyReports tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Radiology_reports"
+  action: ALLOW
+}
+rule Doctorcreateradiologyreportstx{
+  description:"create access to Doctor for radiology reports using createRadiologyReports tx"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.createRadiologyReports"
+  action: ALLOW
+}
+
+
+rule DoctorcreatePatients{
+  description:"create access to Doctor for Patients"
+  participant:"org.clinicaltrials.Doctor"
+  operation: CREATE
+  resource:"org.clinicaltrials.Patient"
+  action: ALLOW
+}
+
+//--------------------------------------clinical research associates rules----------------------------------------------
+
+
+//----------------------------------------------Nurse rules---------------------------------------------------------
+
+
+rule NursecreatePatients{
+  description:"create access to Doctor for Patients"
+  participant:"org.clinicaltrials.Nurse"
+  operation: CREATE
+  resource:"org.clinicaltrials.Patient"
+  action: ALLOW
+}
+
+
+
+//-----------------------------------------------receptionist rules------------------------------------------------------------
+rule receptionistcreatePatients{
+  description:"create access to receptionist for Patients"
+  participant:"org.clinicaltrials.receptionist"
+  operation: CREATE
+  resource:"org.clinicaltrials.Patient"
+  action: ALLOW
+}
+
+
+//-----------------------------------------------accountant rules-------------------------------------------------------
+rule accountantcreatesinvoice{
+  description:"create access for accountant for invoices"
+  participant:"org.clinicaltrials.accountant"
+  operation: CREATE
+  resource:"org.clinicaltrials.invoice"
+  action: ALLOW
+}
